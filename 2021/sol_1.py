@@ -2,13 +2,13 @@
 # 2021-12-01
 
 def main(values):
-    x = values[0]
+    prev = values[0]
     increased = 0
     for y in values[1:]:
-        if y > x:
+        if y > prev:
             increased += 1
-        if x < y:
-            x = y
+        # if prev < y:
+        prev = y
     return increased
 
 
@@ -17,3 +17,4 @@ if __name__ == '__main__':
     print(f'{len(inp_values)} lines')
     answ = main([int(x) for x in inp_values])
     print(f'Answer: {answ}')
+    # 775 -> too low
