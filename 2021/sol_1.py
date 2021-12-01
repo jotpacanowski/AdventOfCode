@@ -5,8 +5,11 @@ def main(values):
     x = values[0]
     increased = 0
     for y in values[1:]:
-        pass
-        return increased
+        if y > x:
+            increased += 1
+        if x < y:
+            x = y
+    return increased
 
 
 if __name__ == '__main__':
