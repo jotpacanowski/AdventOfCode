@@ -15,7 +15,13 @@ def main1(values):
 # (part 2) Instead, consider sums of
 # a three-measurement sliding window.
 def main2(values: list[int]) -> int:
-    pass
+    w1 = (a+b+c for a, b, c in zip(values, values[1:], values[2:]))
+    w2 = (a+b+c for a, b, c in zip(values[1:], values[2:], values[3:]))
+    increased = 0
+    for prev, next in zip(w1, w2):
+        if next > prev:
+            increased += 1
+    return increased
 
 
 if __name__ == '__main__':
@@ -27,3 +33,5 @@ if __name__ == '__main__':
     # 775 -> too low, correct: 1374
 
     answ2 = main2(inp_values)
+    print(f'Part 2: {answ2}')
+    # 1418
