@@ -1,18 +1,24 @@
 # 2021-12-02
 # Python 3.10 port of day 2 solution
 
+import sys
+if sys.version_info < (3, 10):
+    raise SystemExit('Python 3.10 is required.')
+
+
 def main1(lines):
     fwd = 0
     dep = 0
-    for x, y in lines:
-        if x == 'forward':
-            fwd += y
-        elif x == 'up':
-            dep -= y
-        elif x == 'down':
-            dep += y
-        else:
-            print(f'??? {x!r}')
+    for line in lines:
+        match line:
+            case ['forward', int(X)]:
+                fwd += X
+            case ['up', int(X)]:
+                dep -= X
+            case ['down', int(X)]:
+                dep += X
+            case _:
+                print(f'??? {line!r}')
     print(f' * {fwd=} {dep=}')
     return fwd * dep
 
