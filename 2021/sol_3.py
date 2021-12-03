@@ -28,6 +28,18 @@ def main(values: list[str]) -> int:
     return gamma * epsilon
 
 
+def main2(values: list[str]) -> int:
+    gamma = ''
+    epsilon = ''
+    for b in range(0, len(values[0])):
+        most, least = most_least_common(values, b)
+        gamma += most
+        epsilon += least
+    gamma = int(gamma, 2)
+    epsilon = int(epsilon, 2)
+    return gamma * epsilon
+
+
 if __name__ == '__main__':
     inp_values = open('3-input', 'r').read().splitlines()
     inp_values = [x for x in inp_values]
@@ -35,3 +47,6 @@ if __name__ == '__main__':
 
     answ = main(inp_values)
     print(f'Answer: {answ}')
+
+    answ = main2(inp_values)
+    print(f'\n Pt 2 Answer: {answ}')
