@@ -28,17 +28,16 @@ def main2(lines):
     dep = 0
     aim = 0
     for x, y in lines:
-        if x == 'forward':
-            fwd += y
-            dep += aim * y
-        elif x == 'up':
-            # dep -= y
-            aim -= y
-        elif x == 'down':
-            # dep += y
-            aim += y
-        else:
-            print(f'??? {x!r}')
+        match x, y:
+            case ['forward', int(X)]:
+                fwd += X
+                dep += aim * X
+            case ['up', int(X)]:
+                aim -= X
+            case ['down', int(X)]:
+                aim += X
+            case _:
+                print(f'??? {x,y!r}')
     print(f' * {fwd=} {dep=}')
     return fwd * dep
 
