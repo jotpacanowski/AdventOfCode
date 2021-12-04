@@ -118,4 +118,4 @@ if __name__ == '__main__':
 
     answ2 = main2(boards, rand)
     print(f'Part 2: {answ2}')
-    #
+    # 26936 - correct answer
