@@ -60,7 +60,16 @@ def main1(boards, rand):
 
 
 def main2(boards, rand):
-    pass
+    rand.append(None)
+    rand.append(None)
+    need_nums = dict()
+    for i in range(len(boards)):
+        need_nums[i] = minimum_marked(boards[i], rand)
+
+    best_i, best_n = max(need_nums.items(), key=lambda x: x[1])
+    print(f'{best_i}-th board, {best_n} numbers')
+    print('Last number was', rand[best_n-1], rand[:best_n][-1])
+    return rand[best_n-1] * board_sum_unmarked(boards[best_i], rand[:best_n])
 
 
 EXAMPLE_IN = io.StringIO("""
@@ -86,7 +95,7 @@ EXAMPLE_IN = io.StringIO("""
 """)
 
 if __name__ == '__main__':
-    USE_EXAMPLE_IN = True
+    USE_EXAMPLE_IN = False
     rand = None
     bingo_ln = []
     with EXAMPLE_IN if USE_EXAMPLE_IN else open('4-input', 'r') as f:
