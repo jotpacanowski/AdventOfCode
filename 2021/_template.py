@@ -27,9 +27,9 @@ if __name__ == '__main__':
     print(f'{len(inp_values)} lines')
 
     answ = main1(inp_values)
-    print(f'Answer: {answ}')
+    print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
     # Correct answer for my input:
 
     answ2 = main2(inp_values)
-    print(f'Part 2, Answer: {answ2}')
+    print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
     # Correct answer for my input:
