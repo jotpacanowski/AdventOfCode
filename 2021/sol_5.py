@@ -69,8 +69,11 @@ if __name__ == '__main__':
             for x in inp_values]
     print(f'{len(inp_values)} lines')
     # pprint(inp_values)
-    if len(inp_values) < 30:  # TODO: Use min/max
+    max_coord = 1 + max(max(max(*x) for x in ln) for ln in inp_values)
+    if max_coord <= 30:
+        print('  diagram:\n')
         pprint_diagram(inp_values)
+        print('')
 
     answ = main1(inp_values)
     print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
