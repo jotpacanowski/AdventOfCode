@@ -13,7 +13,7 @@ def coord_range(s, t):
         return range(t, s+1)
 
 
-def diagram(list_lines):
+def diagram(list_lines, diagonal=False):
     max_x = 1 + max(max(x[0] for x in ln) for ln in list_lines)
     max_y = 1 + max(max(x[1] for x in ln) for ln in list_lines)
     area = [[0] * max_x for _ in range(max_y)]
@@ -27,23 +27,35 @@ def diagram(list_lines):
             for x in coord_range(a[0], b[0]):
                 area[x][a[1]] += 1
         else:
-            pass  # not horizontal / vertical
+            if not diagonal:
+                continue
+            if abs(b[0] - a[0]) != abs(b[1] - a[1]):
+                raise ValueError(f'Not a 45* line: {a} to {b}')
+
+            dir_ = [(b[i] - a[i]) // abs(b[i] - a[i]) for i in range(2)]
+            assert sum(abs(x) for x in dir_) == 2
+
+            for i in range(0, abs(a[0] - b[0])+1):
+                area[a[0] + i*dir_[0]][a[1] + i*dir_[1]] += 1
+
     return list(zip(*area))  # transpose
 
 
-def pprint_diagram(list_lines):
-    area = diagram(list_lines)
+def pprint_diagram(list_lines, b):
+    area = diagram(list_lines, b)
     for ln in area:
-        print(*(str(min(9, x)) if x>0 else '.' for x in ln), sep='')
+        print(*(str(min(9, x)) if x > 0 else '.' for x in ln), sep='')
 
 
-def main1(values) -> int:
+def main1(list_lines) -> int:
     """determine the number of points where at least two lines overlap"""
-    pass
+    area = diagram(list_lines)
+    return sum(1 for ln in area for x in ln if x > 1)
 
 
-def main2(values) -> int:
-    return
+def main2(list_lines) -> int:
+    area = diagram(list_lines, diagonal=True)
+    return sum(1 for ln in area for x in ln if x > 1)
 
 
 EXAMPLE_IN = io.StringIO("""0,9 -> 5,9
@@ -59,7 +71,7 @@ EXAMPLE_IN = io.StringIO("""0,9 -> 5,9
 """)
 
 if __name__ == '__main__':
-    USE_EXAMPLE_IN = True
+    USE_EXAMPLE_IN = False
     if USE_EXAMPLE_IN:
         print('\x1b[31;1m Using EXAMPLE input! \x1b[0m')
     with EXAMPLE_IN if USE_EXAMPLE_IN else open('5-input', 'r') as f:
@@ -72,8 +84,10 @@ if __name__ == '__main__':
     max_coord = 1 + max(max(max(*x) for x in ln) for ln in inp_values)
     if max_coord <= 30:
         print('  diagram:\n')
-        pprint_diagram(inp_values)
+        pprint_diagram(inp_values, True)
         print('')
+    else:
+        print(f'Max coordinate: {max_coord}')
 
     answ = main1(inp_values)
     print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
