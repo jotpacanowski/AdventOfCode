@@ -19,6 +19,8 @@ EXAMPLE_IN = io.StringIO("""
 
 if __name__ == '__main__':
     USE_EXAMPLE_IN = False
+    if USE_EXAMPLE_IN:
+        print('\x1b[31;1m Using EXAMPLE input! \x1b[0m')
     with EXAMPLE_IN if USE_EXAMPLE_IN else open('-input', 'r') as f:
         inp_values = f.read().splitlines()
         inp_values = [int(x) for x in inp_values]
