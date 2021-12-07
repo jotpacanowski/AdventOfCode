@@ -17,12 +17,25 @@ def main1(values) -> int:
     print(f'total {len(ls)} possibilities')  # < 2e3
     ls.sort()
     pprint(ls[:10])
-    return min(ls)[1]
+    return ls[0][0]
     # return min((f(i), i) for i in range(a, b+1))[1]
 
 
 def main2(values) -> int:
-    return
+    values.sort()
+    a = values[0]   # min
+    b = values[-1]  # max
+
+    def f(pos):
+        def g(x):
+            return x * (x+1) // 2
+        return sum(g(abs(pos - x)) for x in values)
+
+    ls = [(f(i), i) for i in range(a-1, b+2)]
+    print(f'total {len(ls)} possibilities')  # < 2e3
+    ls.sort()
+    pprint(ls[:5])
+    return ls[0][0]
 
 
 EXAMPLE_IN = io.StringIO("16,1,2,0,4,2,7,1,2,14\n")
