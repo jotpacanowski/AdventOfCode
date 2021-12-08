@@ -99,7 +99,7 @@ if __name__ == '__main__':
 
     answ = main1(inp_values)
     print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
-    # Correct answer for my input:
+    # Correct answer for my input: 493
 
     answ2 = main2(inp_values)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
