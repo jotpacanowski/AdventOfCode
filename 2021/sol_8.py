@@ -18,6 +18,7 @@ SEVENSEG = {
     8: 'ABCDEFG',
     9: 'ABCDFG'
 }
+SEVENSEG_INV = {v: k for k, v in SEVENSEG.items()}
 
 NUM_SEGMENTS = {k: len(v) for k, v in SEVENSEG.items()}
 # NUM_SEGMENTS = {
@@ -31,7 +32,7 @@ UNIQUE_SEG = {v: k for k, v in NUM_SEGMENTS.items()
               if list(NUM_SEGMENTS.values()).count(v) == 1}
 
 
-def single_line(line: list[str]) -> str:
+def single_line(line: list[str], verbose=False) -> str:
     signal_patterns, output_value = line
 
     knowledge = []
@@ -40,7 +41,62 @@ def single_line(line: list[str]) -> str:
         if len(d) in UNIQUE_SEG.keys():
             it_is = UNIQUE_SEG[len(d)]
             knowledge.append((d, SEVENSEG[it_is], it_is))
-    pprint(knowledge)
+
+    if verbose:
+        pprint(knowledge)
+
+    possibilities = {k: set() for k in 'abcdefg'}   # a-g -> A-G
+    contradictions = {k: set() for k in 'abcdefg'}  # a-g -> A-G
+
+    for displayed, known, it_is in knowledge:
+        # ab must be CF
+        for i in displayed:
+            for k in 'ABCDEFG':
+                if k in known:
+                    possibilities[i].add(k)  # a can be A
+                else:
+                    contradictions[i].add(k)  # a cannot be C,F,etc.
+        for i in 'abcdefg':
+            if i in displayed:
+                continue
+            for k in 'ABCDEFG':
+                if k in known:
+                    contradictions[i].add(k)
+
+    for k in 'abcdefg':
+        possibilities[k] = possibilities[k] - contradictions[k]
+
+    if verbose:
+        print("It can be:")
+        pprint(possibilities)
+
+    # Guess digits for every string in arguments
+    results = []
+    for digit in itertools.chain(signal_patterns, output_value):
+        guess_lit = set()
+        for comb in itertools.product(*(possibilities[d] for d in digit)):
+            if len(set(comb)) != len(digit):  # letters in comb may not repeat
+                continue
+            true_digit = ''.join(sorted(comb))
+            if true_digit not in SEVENSEG_INV.keys():
+                continue  # good, skip that
+            true_displayed = SEVENSEG_INV[true_digit]
+
+            guess_lit.add(true_displayed)
+
+        if verbose:
+            print(digit, guess_lit)
+
+        if len(guess_lit) == 1:
+            results.append(list(guess_lit)[0])
+        else:
+            print('Take a guess:', guess_lit)
+            pprint(guess_lit)
+            print('   ciąg znaków', digit)
+    if verbose:
+        pprint({signal_patterns[i]: results[i]
+                for i in range(len(signal_patterns))})
+    return results
 
 
 def main1(lines: list[list[str]]) -> int:
@@ -55,6 +111,12 @@ def main1(lines: list[list[str]]) -> int:
 
 def main2(lines: list[list[str]]) -> int:
     "What do you get if you add up all of the output values?"
+    def output_value(ln):
+        a = single_line(ln)[10:]
+        b = ''.join(str(x) for x in a)
+        b = int(b)
+        return b
+    return sum(output_value(ln) for ln in lines)
 
 
 EXAMPLE_IN = io.StringIO("""be cfbegad cbdgef fgaecd cgeb fdcge agebfd fecdb fabcd edb |
@@ -80,10 +142,11 @@ fgae cfgab fg bagce
 """.replace('|\n', '|'))
 
 if __name__ == '__main__':
-    print('Example single line:')
-    single_line(['acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab'.split(),
-                'cdfeb fcadb cdfeb cdbaf'.split()])
-    print('')
+    # print('Example single line:')
+    # single_line(['acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab'.split(),
+    #             'cdfeb fcadb cdfeb cdbaf'.split()], verbose=True)
+    # print('')
+    # raise SystemExit
 
     USE_EXAMPLE_IN = False
     if USE_EXAMPLE_IN:
@@ -103,4 +166,4 @@ if __name__ == '__main__':
 
     answ2 = main2(inp_values)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
-    # Correct answer for my input:
+    # Correct answer for my input: 1010460
