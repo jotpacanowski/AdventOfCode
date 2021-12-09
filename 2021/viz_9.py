@@ -7,6 +7,11 @@ from pprint import pprint
 
 from PIL import Image, ImageColor
 
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
+from matplotlib import cm
+import numpy as np
+
 
 def lowest_points(values: list[list[int]]) -> list[tuple[int, int]]:
     # nines = 0
@@ -124,6 +129,36 @@ def viz_main(values, ls, fn):
         print('Saving', FN)
         hm = hm.resize((4 * W, 4 * H), Image.NEAREST)
         hm.save(FN)
+
+    print('\n3D matplotlib')
+
+    # [[x**2 + y**2 for x in range(20)] for y in range(20)])
+    z = np.array([[values[y][x] for x in range(W)] for y in range(H)], dtype='float32')
+    z /= 9.0
+    # z = np.log10(1 + z) * 2
+
+    # x, y = np.meshgrid(range(z.shape[0]), range(z.shape[1]))
+    x = np.arange(0, W, 1)
+    y = np.arange(0, H, 1)
+    x, y = np.meshgrid(x, y)
+
+# https://stackoverflow.com/questions/30706919/how-to-create-a-3d-height-map-in-python
+    # show hight map in 3d
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot_surface(x, y, z,
+                    cmap=cm.coolwarm, linewidth=0, antialiased=False,
+                    cstride=1, rstride=1)
+    ax.set_zlim(0.0, 1.5)
+    plt.title('3d map of the ocean floor')
+    plt.show()
+
+    # show hight map in 2d
+    # plt.figure()
+    # plt.title('z as 2d heat map')
+    # p = plt.imshow(z)
+    # plt.colorbar(p)
+    # plt.show()
 
 
 if __name__ == '__main__':
