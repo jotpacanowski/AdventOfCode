@@ -5,7 +5,7 @@ import io
 import random
 from pprint import pprint
 
-from PIL import Image
+from PIL import Image, ImageColor
 
 
 def lowest_points(values: list[list[int]]) -> list[tuple[int, int]]:
@@ -41,6 +41,43 @@ EXAMPLE_IN = io.StringIO("""2199943210
 """)
 
 
+# 2D height map
+def viz_height(values, ls, basin_id, basin_sz):
+    "Vizualize simple heightmap"
+    def c(x, y):
+        # TODO: HSV colors / as in heatmap
+        c = values[y][x] / 9  # [0..9] -> [0..1]
+        c = 20 + int((1 - c) * 235)
+
+        if values[y][x] == 9:
+            return (0, 0, 0)
+        elif (y, x) in ls:
+            return (255, 255, 255)
+        else:
+            return (c, c, c // 2)
+    return c
+
+
+def viz_basins(values, ls, basin_id, basin_sz):
+    "Color each basin"
+    colors = [5 * random.randint(0, 360 // 5) for _ in range(len(basin_sz))]
+
+    def c(x, y):
+        c = basin_id[y][x]
+
+        if values[y][x] == 9:
+            return 'black'
+        elif (y, x) in ls:
+            # return 'white'
+            return f'hsv({colors[c]}, 40%, 100%)'  # lighter color
+        else:
+            return f'hsv({colors[c]}, 80%, 100%)'
+    return c
+
+
+VIZ_FUNCS_2D = [viz_height, viz_basins]
+
+
 def viz_main(values, ls, fn):
     H = len(values)
     W = len(values[0])
@@ -51,7 +88,7 @@ def viz_main(values, ls, fn):
     def dfs(row, col):
         nonlocal basin_id
         nonlocal basin_sz
-        if visited[row][col] == -1:
+        if visited[row][col] != -1:
             return
         visited[row][col] = basin_id
         basin_sz[basin_id] += 1
@@ -65,42 +102,28 @@ def viz_main(values, ls, fn):
             dfs(row, col + 1)
 
     for r, c in ls:
-        # basin_id = len(basin_sz)
         basin_sz.append(0)
         dfs(r, c)
         basin_id += 1
-    # basin_sz.sort(reverse=True)
 
-    def random_color():
-        return random.randint(40, 250), random.randint(40, 250), random.randint(40, 250)
-    colors = [random_color() for _ in range(len(basin_sz))]
+    for func in VIZ_FUNCS_2D:
+        print(f'Vizualizing func {func.__name__}')
+        hm = Image.new('RGB', (W, H))
+        getcol = func(values, ls, visited, basin_sz)
+        for x in range(W):
+            for y in range(H):
+                col_ = getcol(x, y)
+                if type(col_) is tuple:
+                    hm.putpixel((x, y), col_)
+                elif type(col_) is str:
+                    hm.putpixel((x, y), ImageColor.getrgb(col_))
+                else:
+                    raise 'wtf'
 
-    print(set(colors))
-
-    # HEIGHT_COLS = [
-    #     ()
-    # ]
-
-    # 2D height map
-    hm = Image.new('RGB', (W, H))
-    for x in range(W):
-        for y in range(H):
-            c = values[y][x] / 9  # [0..9] -> [0..1]
-            c = 20 + int((1 - c) * 235)
-
-            if values[y][x] == 9:
-                hm.putpixel((x, y), (0, 0, 0))
-            elif (y,x) in ls:
-                hm.putpixel((x, y), (255, 255, 255))
-            else:
-                hm.putpixel((x, y), (c, c, c//2))
-            # if values[y][x] == 9:
-            #     hm.putpixel((x, y), (255, 255, 255))
-            # else:
-            #     hm.putpixel((x, y), colors[visited[y][x]])
-    print('Saving', f'vizualize-9-{fn}.png')
-    # hm = hm.resize((4 * W, 4 * H), Image.NEAREST)
-    hm.save(f'vizualize-9-{fn}.png')
+        FN = f'vizualize-9-{fn} {func.__name__}.png'
+        print('Saving', FN)
+        hm = hm.resize((4 * W, 4 * H), Image.NEAREST)
+        hm.save(FN)
 
 
 if __name__ == '__main__':
@@ -114,7 +137,7 @@ if __name__ == '__main__':
     print(f'{len(inp_values)} lines, {len(inp_values[0])} columns each')
 
     ls = list(lowest_points(inp_values))
-    print('There are', len(ls), 'lowest points')
+    print('There are\x1b[32m', len(ls), '\x1b[0mlowest points / basins')
 
     sys.setrecursionlimit(100)
 
