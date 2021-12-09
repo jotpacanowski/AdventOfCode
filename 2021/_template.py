@@ -2,6 +2,7 @@
 # 2021-12-
 
 import io
+import sys
 from pprint import pprint
 
 
@@ -18,7 +19,7 @@ EXAMPLE_IN = io.StringIO("""
 """)
 
 if __name__ == '__main__':
-    USE_EXAMPLE_IN = False
+    USE_EXAMPLE_IN = 'ex' in sys.argv  # False
     if USE_EXAMPLE_IN:
         print('\x1b[31;1m Using EXAMPLE input! \x1b[0m')
     with EXAMPLE_IN if USE_EXAMPLE_IN else open('-input', 'r') as f:
