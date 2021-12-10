@@ -30,9 +30,8 @@ if __name__ == '__main__':
     USE_EXAMPLE_IN = 'ex' in sys.argv
     if USE_EXAMPLE_IN:
         print('\x1b[31;1m Using EXAMPLE input! \x1b[0m')
-    with EXAMPLE_IN if USE_EXAMPLE_IN else open('-input', 'r') as f:
+    with EXAMPLE_IN if USE_EXAMPLE_IN else open('10-input', 'r') as f:
         inp_values = f.read().splitlines()
-        inp_values = [int(x) for x in inp_values]
     print(f'{len(inp_values)} lines')
 
     answ = main1(inp_values)
