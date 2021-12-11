@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # 2021-12-11
 
+import copy
 import io
 import sys
 from pprint import pprint
@@ -32,7 +33,7 @@ def sim_step(grid):
 
         for x in (-1, 0, 1):
             for y in (-1, 0, 1):
-                if abs(x) + abs(y) == 0:
+                if x == 0 and y == 0:
                     continue
                 if i + x < 0 or j + y < 0:
                     continue
@@ -66,8 +67,12 @@ def main1(grid) -> int:
     return r
 
 
-def main2(grid) -> int:
-    return
+def main2(grid, maxsteps=100) -> int:
+    for i in range(1, maxsteps + 1):
+        grid, num_fl = sim_step(grid)
+        if num_fl == 100:
+            return i
+    return 10 * maxsteps
 
 
 EXAMPLE_1 = """11111
@@ -100,10 +105,10 @@ if __name__ == '__main__':
         inp_values = [[int(y) for y in x] for x in inp_values]
     print(f'{len(inp_values)} by {len(inp_values[0])} grid')
 
-    answ = main1(inp_values)
+    answ = main1(copy.deepcopy(inp_values))
     print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
     # Correct answer for my input: 1785
 
-    answ2 = main2(inp_values)
+    answ2 = main2(inp_values, 20000)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
-    # Correct answer for my input:
+    # Correct answer for my input: 354
