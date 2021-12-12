@@ -17,20 +17,21 @@ def edges_to_graph(edges_list):
     return G
 
 
-def main1(G) -> int:
+def main1(G, display=False) -> int:
     """
     How many paths through this cave system are there
     that visit small caves at most once?
     """
     total_paths = 0
-    visited = {k: 0 for k in G.keys()}
+    # visited = {k: 0 for k in G.keys()}
     stack = []
 
     def dfs_visit(node):
-        nonlocal stack, visited, total_paths
+        nonlocal stack, total_paths
         if node == 'end':
             stack.append('end')
-            print('New path: ', '-'.join(stack))
+            if display:
+                print('New path: ', '-'.join(stack))
             stack.pop()
             total_paths += 1
         stack.append(node)
@@ -47,8 +48,53 @@ def main1(G) -> int:
     return total_paths
 
 
-def main2(values) -> int:
-    return
+def main2(G, display=False) -> int:
+    # Now *single* lowercase cave can be visited at most twice
+    # ...and the rest of small caves once
+    total_paths = 0
+    visited = {k: 0 for k in G.keys()}
+    stack = []
+    have_twice = False
+
+    def node_enter(node):
+        stack.append(node)
+        visited[node] = visited.get(node) + 1
+
+    def node_leave():
+        n = stack.pop()
+        visited[n] = visited.get(n) - 1
+
+    def dfs_visit(node):
+        nonlocal stack, visited, total_paths, have_twice
+        if node == 'end':
+            node_enter('end')
+            if display:
+                print('New path: ', '-'.join(stack))
+            node_leave()
+            total_paths += 1
+            return
+
+        node_enter(node)
+        for neigh in G[node]:
+            if neigh == 'start':
+                continue
+            if neigh.islower() and visited[neigh] < 2:
+                if visited[neigh] == 0:
+                    dfs_visit(neigh)
+                elif visited[neigh] == 1:
+                    if not have_twice:
+                        have_twice = True
+                        dfs_visit(neigh)
+                        have_twice = False
+
+            elif neigh.isupper():
+                dfs_visit(neigh)
+            else:
+                pass  # raise ValueError(f'node name {node!r}')
+        node_leave()
+
+    dfs_visit('start')
+    return total_paths
 
 
 EXAMPLE_1 = """start-A
@@ -104,13 +150,13 @@ if __name__ == '__main__':
 
     G = edges_to_graph(inp_values)
     print(f'{len(G)} vertices')
-    print('  GRAPH: ')
-    pprint(G)
+    # print('  GRAPH: ')
+    # pprint(G)
 
-    answ = main1(G)
+    answ = main1(G, display=False)
     print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
     # Correct answer for my input: 3369
 
     answ2 = main2(G)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
-    # Correct answer for my input:
+    # Correct answer for my input: 85883
