@@ -1,0 +1,32 @@
+graph {
+	start
+	end
+
+    DA -- start
+    start -- PW
+    dj -- start
+
+    DA -- xn
+    KD -- ut
+    gx -- ll
+    dj -- PW
+    xn -- dj
+    ll -- ut
+    xn -- gx
+    dg -- ak
+    ut -- gx
+    YM -- ll
+    dj -- DA
+    ll -- xn
+    dj -- YM
+    PW -- gx
+    YM -- gx
+    xn -- ak
+    PW -- ak
+    xn -- PW
+    ak -- DA
+
+    ak -- end
+    YM -- end
+    end -- ll
+}
