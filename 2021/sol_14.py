@@ -73,16 +73,28 @@ def main2_check(rules, start):
 
 
 def main2(rules, start) -> int:
-    # print(f'len 0 : {len(start)}')
     n = to_pairs_counter(start)
     for i in range(40):
         n2 = next_polymer_opt(rules, n)
         n = n2.copy()
-        # print(f'len {i} : {len(n2)}')
 
-    ctr = Counter(n)
+    koniec = start[-3:]
+    for i in range(40):
+        koniec = next_polymer(rules, koniec)[-3:]
+    print(f'{koniec=}')
+
+    # Convert `n` from pairs to letters counter
+    ctr = Counter()
+    for pair, v in n.items():
+        ctr[pair[0]] += v
+        # ctr[pair[1]] += v
+        # last_k, last_v = pair[1], v
+    # kon_k = koniec[-2] + koniec[-1]
+    ctr[koniec[-1]] += 1
+
     ctri = list(ctr.items())
     ctri.sort(key=lambda x: x[1])  # by value / frequency
+    pprint(ctri)
     return ctri[-1][1] - ctri[0][1]
     return ''.join(n2)
 
@@ -125,3 +137,4 @@ if __name__ == '__main__':
     answ2 = main2(inp_rules, inp_start)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
     # Correct answer for my input:
+    # too low - 3010584033086
