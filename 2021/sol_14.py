@@ -31,8 +31,60 @@ def main1(rules, start) -> int:
     return ''.join(n2)
 
 
+def next_polymer_opt(rules, pairs: Counter):
+    n2 = Counter()
+    # print('input: ', pairs)
+    for pair, v in pairs.items():
+        r = rules[pair]
+        a = pair[0] + r
+        b = r + pair[1]
+        n2[a] += v
+        n2[b] += v
+        last_k, last_v = b, v
+        # print(':) ', pair, a, b, v)
+    # n2[last_k] = last_v
+    return n2
+
+
+def to_pairs_counter(s: str) -> Counter:
+    return Counter(x + y for x, y in zip(s, s[1:]))
+
+
+def main2_check(rules, start):
+    print(f'len 0 : {len(start)}')
+    n = to_pairs_counter(start)
+    nn = start + ''
+    print(to_pairs_counter(nn) == n)
+    pprint(n)
+    for i in range(19):
+        n2 = next_polymer_opt(rules, n)
+        nn2 = next_polymer(rules, nn)
+        n = n2.copy()
+        nn = nn2
+        print(f'len {i} : {len(n2)}  - {to_pairs_counter(nn2) == n2}')
+        # print(''.join(nn2) == n2)
+        if not to_pairs_counter(nn2) == n2:
+            print("WRONG")
+            print(' ', nn2)
+            pprint(n2)
+            pprint(to_pairs_counter(nn2))
+            raise SystemExit(1)
+    print('OK')
+
+
 def main2(rules, start) -> int:
-    return
+    # print(f'len 0 : {len(start)}')
+    n = to_pairs_counter(start)
+    for i in range(40):
+        n2 = next_polymer_opt(rules, n)
+        n = n2.copy()
+        # print(f'len {i} : {len(n2)}')
+
+    ctr = Counter(n)
+    ctri = list(ctr.items())
+    ctri.sort(key=lambda x: x[1])  # by value / frequency
+    return ctri[-1][1] - ctri[0][1]
+    return ''.join(n2)
 
 
 EXAMPLE_IN = io.StringIO("""NNCB
