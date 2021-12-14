@@ -28,12 +28,11 @@ def main1(rules, start) -> int:
     ctri = list(ctr.items())
     ctri.sort(key=lambda x: x[1])  # by value / frequency
     return ctri[-1][1] - ctri[0][1]
-    return ''.join(n2)
+    return ''.join(n2)  # for debugging
 
 
 def next_polymer_opt(rules, pairs: Counter):
     n2 = Counter()
-    # print('input: ', pairs)
     for pair, v in pairs.items():
         r = rules[pair]
         a = pair[0] + r
@@ -41,7 +40,6 @@ def next_polymer_opt(rules, pairs: Counter):
         n2[a] += v
         n2[b] += v
         last_k, last_v = b, v
-        # print(':) ', pair, a, b, v)
     # n2[last_k] = last_v
     return n2
 
@@ -59,8 +57,9 @@ def main2_check(rules, start):
     for i in range(19):
         n2 = next_polymer_opt(rules, n)
         nn2 = next_polymer(rules, nn)
-        n = n2.copy()
+        n = n2.copy()  # TODO Do I need to copy btw?
         nn = nn2
+
         print(f'len {i} : {len(n2)}  - {to_pairs_counter(nn2) == n2}')
         # print(''.join(nn2) == n2)
         if not to_pairs_counter(nn2) == n2:
@@ -87,9 +86,6 @@ def main2(rules, start) -> int:
     ctr = Counter()
     for pair, v in n.items():
         ctr[pair[0]] += v
-        # ctr[pair[1]] += v
-        # last_k, last_v = pair[1], v
-    # kon_k = koniec[-2] + koniec[-1]
     ctr[koniec[-1]] += 1
 
     ctri = list(ctr.items())
@@ -120,7 +116,7 @@ CN -> C
 """)
 
 if __name__ == '__main__':
-    USE_EXAMPLE_IN = 'ex' in sys.argv  # False
+    USE_EXAMPLE_IN = 'ex' in sys.argv
     if USE_EXAMPLE_IN:
         print('\x1b[31;1m Using EXAMPLE input! \x1b[0m')
     with EXAMPLE_IN if USE_EXAMPLE_IN else open('14-input', 'r') as f:
@@ -136,5 +132,4 @@ if __name__ == '__main__':
 
     answ2 = main2(inp_rules, inp_start)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
-    # Correct answer for my input:
-    # too low - 3010584033086
+    # Correct answer for my input: 3152788426516
