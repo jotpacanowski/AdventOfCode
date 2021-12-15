@@ -16,6 +16,9 @@ def parse_argv(argv=sys.argv) -> Tuple[bool, int]:
 
     # Try to find example number
     example_no = None
+    if sys.version_info < (3, 10):  # TODO - Fallback
+        raise SyntaxError('Python 3.10 is required for match-case')
+
     match argv[1:]:
         case ['ex', n]:
             example_no = int(n)
