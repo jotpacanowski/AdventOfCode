@@ -5,6 +5,8 @@ import io
 import sys
 from pprint import pprint
 
+import j_aoc_common
+
 
 def main1(values) -> int:
     return
@@ -14,15 +16,13 @@ def main2(values) -> int:
     return
 
 
-EXAMPLE_IN = io.StringIO("""
+EXAMPLE_1 = """
 
-""")
+"""
 
 if __name__ == '__main__':
-    USE_EXAMPLE_IN = 'ex' in sys.argv  # False
-    if USE_EXAMPLE_IN:
-        print('\x1b[31;1m Using EXAMPLE input! \x1b[0m')
-    with EXAMPLE_IN if USE_EXAMPLE_IN else open('-input', 'r') as f:
+    PUZZLE_INPUT = j_aoc_common.do_common_main(locals(), day=0)
+    with PUZZLE_INPUT as f:
         inp_values = f.read().splitlines()
         inp_values = [int(x) for x in inp_values]
     print(f'{len(inp_values)} lines')

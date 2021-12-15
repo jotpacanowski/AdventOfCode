@@ -30,7 +30,7 @@ def parse_argv(argv=sys.argv) -> Tuple[bool, int]:
     return True, example_no
 
 
-def do_common_main(mod_locals, argv=sys.argv, *, day=0):
+def do_common_main(mod_locals: dict, argv=sys.argv, *, day=0):
     """Opens puzzle input for parsing"""
     USE_EXAMPLE_IN, EXAMPLE_NO = parse_argv(argv)
 
