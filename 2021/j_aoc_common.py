@@ -34,22 +34,24 @@ def parse_argv(argv=sys.argv) -> Tuple[bool, int]:
 
 
 def do_common_main(mod_locals: dict, argv=sys.argv, *, day=0):
-    """Opens puzzle input for parsing"""
+    """Opens puzzle input for parsing
+
+    If `mod_locals` is a dict, write save variables to it."""
     USE_EXAMPLE_IN, EXAMPLE_NO = parse_argv(argv)
 
     if USE_EXAMPLE_IN:
         print(f'\x1b[31;1m Using EXAMPLE input \x1b[0m({EXAMPLE_NO})')
-
-    # Set module locals, maybe needed TODO if provided
-    # mod_locals['USE_EXAMPLE_IN'] = USE_EXAMPLE_IN
-    # mod_locals['EXAMPLE_NO'] = EXAMPLE_NO
 
     if USE_EXAMPLE_IN:
         example_data = mod_locals[f'EXAMPLE_{EXAMPLE_NO}']
         PUZZLE_INPUT = io.StringIO(example_data)
     else:
         PUZZLE_INPUT = open(f'{day}-input', 'r')
-    # mod_locals['PUZZLE_INPUT'] = PUZZLE_INPUT
+
+    if mod_locals:
+        mod_locals['USE_EXAMPLE_IN'] = USE_EXAMPLE_IN
+        mod_locals['EXAMPLE_NO'] = EXAMPLE_NO
+        mod_locals['PUZZLE_INPUT'] = PUZZLE_INPUT
     return PUZZLE_INPUT
 
 
