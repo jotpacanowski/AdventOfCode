@@ -7,66 +7,82 @@ import sys
 from pprint import pprint
 
 
-def main1(values) -> int:
-    W = len(values[0])  # Note: square
-    H = len(values)
-    row = [0] * W
+def main1(values, do_path=False) -> int:
+    N = len(values)
 
-    # First row:
-    for i in range(W):
-        pass  # if values[0][i]
+    # 'inf' is always greater than any integer
+    known_min = [[float('inf')] * N for _ in range(N)]
+    if do_path:
+        vis_before = [[None] * N for _ in range(N)]
 
-    # visited = {k: 0 for k in G.keys()}
-    known_min = [[0xffffffff] * W for _ in range(H)]
-    known_min[0][0] = 0
+    q = [(0, 0, 0, (0, 0))]  # dist, y, x
 
-    q = [(0, 0, 0)]  # dist, y, x
-    # print(len(q))
     while len(q) > 0:  # Dijkstra
-        plen, r, c = heapq.heappop(0)
-        # print(f'Visiting {r,c} with {plen}')
-        if known_min[r][c] < plen:
+        plen, r, c, prev = heapq.heappop(q)
+        if known_min[r][c] <= plen:  # No upgrade
             continue
+        # print(f'Visiting {r,c} with {plen}')
+        # cur_risk = values[r][c]
 
-        # print(len(q))
         known_min[r][c] = plen
+        if do_path:
+            vis_before[r][c] = prev
 
-        for ny, nx in {(0, -1), (0, 1), (-1, 0), (1, 0)}:
-            breakpoint
-            if not (0 <= r + ny < H and 0 <= c + nx < W):
+        if r == N - 1 and c == N - 1:
+            break
+
+        for ny, nx in ((1, 0), (0, 1), (-1, 0), (0, -1)):
+            if not (0 <= r + ny < N and 0 <= c + nx < N):
                 continue
 
-            q.append((plen + values[r][c], r + ny, c + nx))
+            next_risk = values[r + ny][c + nx]
+            if plen + next_risk < known_min[r + ny][c + nx]:
+                heapq.heappush(q,
+                               (plen + next_risk, r + ny, c + nx, (r, c)))
 
-    return known_min[-1][-1]
+    if do_path:
+        path = []
+        node = (N - 1, None - 1)
+        while node != (0, 0):
+            path.append(node)
+            node = vis_before[node[0]][node[1]]
+        if len(path) < 22:
+            print('Best path:')
+            pprint(path)
+        path.append((0, 0))  # loop!
+        # pprint(path[::-1])
 
-    # def dfs_visit(node, plen):
-    #     r, c = node
-    #     if node == (H - 1, W - 1):
-    #         # stack.append('end')
-    #         # if display:
-    #         #     print('New path: ', '-'.join(stack))
-    #         # stack.pop()
-    #         known_min[node[0]][node[1]] = min(
-    #             known_min[node[0]][node[1]], plen)
-    #     stack.append(node)
-
-    #         dfs_visit((r + ny, c + nx), plen + )
-
-    #         if neigh.islower() and neigh not in stack:
-    #             dfs_visit(neigh)
-    #         elif neigh.isupper():
-    #             dfs_visit(neigh)
-    #         else:
-    #             pass  # raise ValueError(f'node name {node!r}')
-    #     stack.pop()
-
-    # dfs_visit('start')
-    # return total_paths
+    return known_min[N - 1][N - 1]
 
 
-def main2(values) -> int:
-    return
+def main2(values):
+    N = len(values)
+    assert N == len(values[0])
+    fullmap = [[None] * 5 * N for _ in range(5 * N)]
+
+    for x in range(N):
+        for y in range(N):
+            fullmap[y][x] = values[y][x]
+
+    for i in range(5):
+        for j in range(5):
+            if i == 0 and j == 0:
+                continue
+            sq_j = j - 1 if j > 0 else 0
+            sq_i = i - 1 if i > 0 else 0
+            if j >= 1 and i >= 1:
+                sq_j = j        # to the left or to the right
+            for x in range(N):
+                for y in range(N):
+                    v = fullmap[N * sq_j + y][N * sq_i + x]
+                    v += 1
+                    if v > 9:
+                        v = 1
+                    fullmap[N * j + y][N * i + x] = v
+    print(f'full map {len(fullmap)} by {len(fullmap[0])}')
+    # for row in fullmap:
+    #     print(*row, sep='')
+    return fullmap
 
 
 EXAMPLE_IN = io.StringIO("""1163751742
@@ -88,12 +104,13 @@ if __name__ == '__main__':
     with EXAMPLE_IN if USE_EXAMPLE_IN else open('15-input', 'r') as f:
         inp_values = f.read().splitlines()
         inp_values = [[int(y) for y in x] for x in inp_values]
-    print(f'{len(inp_values)} lines')
+    print(f'{len(inp_values)} by {len(inp_values[0])} rectangle')
 
-    answ = main1(inp_values)
-    print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
-    # Correct answer for my input:
+    answ = main1(inp_values, True)
+    print(f'\x1b[32;1mAnswer1: {answ} \x1b[0m')
+    # Correct answer for my input: 811
 
-    answ2 = main2(inp_values)
-    print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
-    # Correct answer for my input:
+    fullmap = main2(inp_values)
+    answ2 = main1(fullmap)
+    print(f'\x1b[32;1mAnswer2: {answ2} \x1b[0m')
+    # Correct answer for my input: 3012
