@@ -7,6 +7,8 @@ from pprint import pprint
 from typing import Tuple
 
 
+# TODO: Maybe input parsing
+
 def parse_argv(argv=sys.argv) -> Tuple[bool, int]:
     """Parse `argv` and find the example number, if provided"""
     if 'ex' not in ''.join(argv[1:]):
@@ -46,8 +48,6 @@ def do_common_main(mod_locals: dict, argv=sys.argv, *, day=0):
         PUZZLE_INPUT = open(f'{day}-input', 'r')
     # mod_locals['PUZZLE_INPUT'] = PUZZLE_INPUT
     return PUZZLE_INPUT
-
-# TODO: Maybe input parsing
 
 
 if __name__ == '__main__':

@@ -14,6 +14,7 @@ def test_args(argv):
 
 if __name__ == '__main__':
     test_args([None, 'ex', '1'])
+    test_args([None, 'ex'])
     test_args([None, 'ex', '2'])
     try:
         test_args([None, 'ex', '3'])

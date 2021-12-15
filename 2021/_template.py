@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 # 2021-12-
 
-import io
-import sys
 from pprint import pprint
 
 import j_aoc_common
