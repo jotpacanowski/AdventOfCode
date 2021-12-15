@@ -8,17 +8,15 @@ from typing import Tuple
 
 
 def parse_argv(argv=sys.argv) -> Tuple[bool, int]:
-    """Return example number provided in """
-    # USING_EXAMPLE_IN = False
+    """Parse `argv` and find the example number, if provided"""
     if 'ex' not in ''.join(argv[1:]):
         return False, 0
-        # USING_EXAMPLE_IN = True
 
     # Try to find example number
     example_no = None
     match argv[1:]:
-        case ['ex', int(n)]:
-            example_no = n
+        case ['ex', n]:
+            example_no = int(n)
         case ['ex']:
             example_no = 1
         case str(s) if len(s) > 2:
@@ -36,8 +34,9 @@ def do_common_main(mod_locals: dict, argv=sys.argv, *, day=0):
 
     if USE_EXAMPLE_IN:
         print(f'\x1b[31;1m Using EXAMPLE input \x1b[0m({EXAMPLE_NO})')
-    # Set module locals, maybe needed
-    mod_locals['USE_EXAMPLE_IN'] = USE_EXAMPLE_IN
+
+    # Set module locals, maybe needed TODO if provided
+    # mod_locals['USE_EXAMPLE_IN'] = USE_EXAMPLE_IN
     # mod_locals['EXAMPLE_NO'] = EXAMPLE_NO
 
     if USE_EXAMPLE_IN:
@@ -45,13 +44,10 @@ def do_common_main(mod_locals: dict, argv=sys.argv, *, day=0):
         PUZZLE_INPUT = io.StringIO(example_data)
     else:
         PUZZLE_INPUT = open(f'{day}-input', 'r')
-    mod_locals['PUZZLE_INPUT'] = PUZZLE_INPUT
+    # mod_locals['PUZZLE_INPUT'] = PUZZLE_INPUT
     return PUZZLE_INPUT
 
-    # with EXAMPLE_IN if USE_EXAMPLE_IN else  as f:
-    #     inp_values = f.read().splitlines()
-    #     inp_values = [int(x) for x in inp_values]
-    # print(f'{len(inp_values)} lines')
+# TODO: Maybe input parsing
 
 
 if __name__ == '__main__':
