@@ -58,7 +58,8 @@ def parse_packet(hex, str_bits=False):
     if length_type_id == '0':
         length = int(data[1:1 + 15], 2)
         data = data[16:]
-        while len(data) // 4 > 0:
+        while len(data) // 4 > 0 and len(data) > 6:
+            # print(f'Another inside packet', len(data)//4, data)
             that_c, _ = parse_packet(data, str_bits=True)
             that_c = math.ceil(that_c / 4)
             data = data[that_c:]
@@ -93,9 +94,13 @@ EXAMPLE_1 = """
 """
 
 if __name__ == '__main__':
-    assert parse_packet("D2FE28") == (15, 2021)     # integer value
-    assert parse_packet("38006F45291200")[0] == 43  # I=0
-    assert parse_packet("EE00D40C823060")[0] == 45  # I=1
+    if False:
+        assert parse_packet("D2FE28") == (15, 2021)     # integer value
+        print('assertions succ1')
+        assert parse_packet("38006F45291200")[0] == 43  # I=0
+        print('assertions succ2')
+        assert parse_packet("EE00D40C823060")[0] == 45  # I=1
+        print('assertions succ3')
 
     PUZZLE_INPUT = j_aoc_common.do_common_main(locals(), day=16)
     with PUZZLE_INPUT as f:
@@ -104,7 +109,7 @@ if __name__ == '__main__':
 
     answ = main1(inp_values)
     print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
-    # Correct answer for my input:
+    # Correct answer for my input: 2545
 
     answ2 = main2(inp_values)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
