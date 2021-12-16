@@ -17,7 +17,7 @@ def parse_literal_value(data) -> int:
         if val_start == '0':
             break
         data = data[5:]
-    return 5 * len(values), int(''.join(values), 2)
+    return 6 + 5 * len(values), int(''.join(values), 2)
 
 
 GLBL_SUM_ALL_PV = 0
@@ -46,45 +46,52 @@ def parse_packet(hex, str_bits=False):
     PV, PT, data = bits[0:3], bits[3:6], bits[6:]
     # print(f'{PV}, {PT}, {len(data)} b left')
     if not data:
+        print('??? empty data', PT, PV)
         return 0, float('nan')
 
     PV = int(PV, 2)
     PT = int(PT, 2)
-    print(f' * {"Value packet" if PT == 4 else "Operator"} w/ ver. {PV}   {len(data)}')
+    print(f' * {"Value packet" if PT == 4 else "Operator"} ver. {PV},  {len(data)} bits')
     GLBL_SUM_ALL_PV += PV
 
     if PT == 4:
-        return parse_literal_value(data)
+        bits, val = parse_literal_value(data)
+        print(f' -> Has VALUE {val},  ({bits=})')
+        return bits, val
 
     # operators
     length_type_id = data[0]
     if length_type_id == '0':
         length = int(data[1:1 + 15], 2)
         data = data[16: 16 + length]
-        print('Inside packet i=0, L={length}')
+        print(f' -- Inside packet i=0, L={length}')
         while len(data) > 6:
             # print(f'Another inside packet', len(data)//4, data)
+            print(f'about to parse ({len(data)} b):', data)
             that_c, _ = parse_packet(data, str_bits=True)
             # if that_c > 11:
             #     print('!!! !!!!')
             # that_c = math.ceil(that_c / 4)
-            data = data[6 + that_c:]
+            data = data[that_c:]
         if len(data) != 0 and len(data) > 6:
             print('! Unconsumed', len(data), 'bits')
-        return 1 + 15 + length, 'LT-len'
+        return 6 + 1 + 15 + length, 'LT-len'
     else:
         sub_pack = int(data[1:1 + 11], 2)
-        print(f' -- Inside packet i=1 with {sub_pack} packets')
+        print(f' -- Inside packet i=1 with {sub_pack} sub-packets')
         data = data[12:]
-        data = data[:sub_pack * 11]
+        # data = data[:sub_pack * 11]
         rlen = 12
         for i in range(sub_pack):
+            print(f'about to parse {i}/{sub_pack}:', data)
             that_c, _ = parse_packet(data, str_bits=True)
-            data = data[6 + that_c:]
-            rlen += 6 + that_c
+            data = data[that_c:]
+            rlen += that_c
+        print(f'{i}/{sub_pack} -- ver {PV}')
         if len(data) != 0:
+            rlen += len(data)
             print('@ Unconsumed', len(data), 'bits')
-        return rlen, 'LT_sub'
+        return 6 + rlen, 'LT_sub'
 
     raise NotImplementedError()
 
@@ -94,14 +101,15 @@ def main1(values) -> int:
     pprint(values)
     data = ''.join(f'{int(x,16):04b}' for x in values)
     print(data)
-    while len(data) > 0:
-        print(f'Parsing {int(data[:4*2],2):02x} ... {len(data)} d. left')
-        bits, v = parse_packet(data, str_bits=True)
-        bits += 6  # header
-        hexd = math.ceil(bits / 4)
-        print(f"cosdumed {bits} -> {hexd} digits, {v=}")
-        print('current sum', GLBL_SUM_ALL_PV)
-        data = data[hexd:]
+    # "The BITS transmission contains a single packet at its outermost layer"
+    # while len(data) > 0:
+    print(f'Parsing {int(data[:4*2],2):02x} ... {len(data)} d. left')
+    bits, v = parse_packet(data, str_bits=True)
+        # bits += 6  # header
+    hexd = math.ceil(bits / 4)
+    print(f"cosdumed {bits} -> {hexd} digits, {v=}")
+        # print('current sum', GLBL_SUM_ALL_PV)
+        # data = data[hexd:]
         # BITS transmission might encode few 0 at the end - ignore
     return GLBL_SUM_ALL_PV
 
