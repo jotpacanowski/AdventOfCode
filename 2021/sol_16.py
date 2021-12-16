@@ -40,6 +40,7 @@ def parse_packet(hex, str_bits=False):
 
     # org_data_len = len(bits)
     if len(bits) <= 6:
+        print('??? Packet shorter than 6 bits')
         return 0, float('nan')
 
     # print(f'Packet: {hex.hex()}')
@@ -49,8 +50,8 @@ def parse_packet(hex, str_bits=False):
         print('??? empty data', PT, PV)
         return 0, float('nan')
 
-    PV = int(PV, 2)
-    PT = int(PT, 2)
+    PV = int(PV, 2)   # packet version
+    PT = int(PT, 2)   # packet type ID
     print(f' * {"Value packet" if PT == 4 else "Operator"} ver. {PV},  {len(data)} bits')
     GLBL_SUM_ALL_PV += PV
 
@@ -89,7 +90,7 @@ def parse_packet(hex, str_bits=False):
             rlen += that_c
         print(f'{i}/{sub_pack} -- ver {PV}')
         if len(data) != 0:
-            rlen += len(data)
+            # rlen += len(data)
             print('@ Unconsumed', len(data), 'bits')
         return 6 + rlen, 'LT_sub'
 
@@ -102,15 +103,17 @@ def main1(values) -> int:
     data = ''.join(f'{int(x,16):04b}' for x in values)
     # print(data)
     # "The BITS transmission contains a single packet at its outermost layer"
-    # while len(data) > 0:
-    print(f'Parsing {int(data[:4*2],2):02x} ... {len(data)} d. left\n')
-    bits, v = parse_packet(data, str_bits=True)
+    while len(data) > 7:
+        print(f'Parsing {int(data[:4*2],2):02x}... {len(data)} bits left\n')
+        bits, v = parse_packet(data, str_bits=True)
         # bits += 6  # header
-    hexd = math.ceil(bits / 4)
-    print(f"\nAte {bits} -> {hexd} digits, {v=}")
-        # print('current sum', GLBL_SUM_ALL_PV)
-        # data = data[hexd:]
+        hexd = math.ceil(bits / 4)
+        print(f"\nAte {bits} -> {hexd} digits, {v=}")
+        print('   CURRENT SUM IS ', GLBL_SUM_ALL_PV)
+        data = data[bits:]  # data[hexd:]
         # BITS transmission might encode few 0 at the end - ignore
+        print('data left:')
+        print(data)
     return GLBL_SUM_ALL_PV
 
 
@@ -124,12 +127,13 @@ EXAMPLE_3 = 'C0015000016115A2E0802F182340'  # 23
 EXAMPLE_4 = 'A0016C880162017C3686B18A3D4780'  # 31
 
 if __name__ == '__main__':
-    if True:
+    if False:
         assert parse_packet("D2FE28") == (15 + 6, 2021)     # integer value
         print('assertions succ1')
         assert parse_packet("38006F45291200")[0] - 6 == 43  # I=0
         print('assertions succ2')
-        assert parse_packet("EE00D40C823060")[0] - 6 == 45  # I=1
+        print('\n\n\n', parse_packet("EE00D40C823060"))
+        assert parse_packet("EE00D40C823060")[0] == 45 + 6 + 5  # I=1, 5 at the end
         print('assertions succ3')
         GLBL_SUM_ALL_PV = 0
 
@@ -140,10 +144,7 @@ if __name__ == '__main__':
 
     answ = main1(inp_values)
     print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
-    # Correct answer for my input:
-    # 2545 - too high
-    # 45 - wrong
-    # 4 - wrong...
+    # Correct answer for my input: 904
 
     answ2 = main2(inp_values)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
