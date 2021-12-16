@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 # 2021-12-16
 
+import functools
+import itertools
 import math
+import operator
 from pprint import pprint
 
 import j_aoc_common
@@ -52,7 +55,8 @@ def parse_packet(hex, str_bits=False):
 
     PV = int(PV, 2)   # packet version
     PT = int(PT, 2)   # packet type ID
-    print(f' * {"Value packet" if PT == 4 else "Operator"} ver. {PV},  {len(data)} bits')
+    print(
+        f' * {"Value packet" if PT == 4 else "Operator"} ver. {PV},  {len(data)} bits')
     GLBL_SUM_ALL_PV += PV
 
     if PT == 4:
@@ -117,6 +121,17 @@ def main1(values) -> int:
     return GLBL_SUM_ALL_PV
 
 
+OPS = {
+    0: sum,
+    1: lambda x: functools.reduce(operator.mul, x),
+    2: min,
+    3: max,
+    5: operator.gt,
+    6: operator.lt,
+    7: operator.eq
+}
+
+
 def main2(values) -> int:
     return
 
@@ -133,7 +148,8 @@ if __name__ == '__main__':
         assert parse_packet("38006F45291200")[0] - 6 == 43  # I=0
         print('assertions succ2')
         print('\n\n\n', parse_packet("EE00D40C823060"))
-        assert parse_packet("EE00D40C823060")[0] == 45 + 6 + 5  # I=1, 5 at the end
+        assert parse_packet("EE00D40C823060")[
+            0] == 45 + 6 + 5  # I=1, 5 at the end
         print('assertions succ3')
         GLBL_SUM_ALL_PV = 0
 
