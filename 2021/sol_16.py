@@ -39,16 +39,18 @@ def parse_packet(hex, str_bits=False):
             raise NotImplementedError
 
     # org_data_len = len(bits)
+    if len(bits) <= 6:
+        return 0, float('nan')
 
     # print(f'Packet: {hex.hex()}')
     PV, PT, data = bits[0:3], bits[3:6], bits[6:]
     # print(f'{PV}, {PT}, {len(data)} b left')
-    PV = int(PV, 2)
-    PT = int(PT, 2)
-
     if not data:
         return 0, float('nan')
-    print(f' * Packet {PT == 4} w/ ver. {PV}   {len(data)}')
+
+    PV = int(PV, 2)
+    PT = int(PT, 2)
+    print(f' * {"Value packet" if PT == 4 else "Operator"} w/ ver. {PV}   {len(data)}')
     GLBL_SUM_ALL_PV += PV
 
     if PT == 4:
@@ -58,27 +60,42 @@ def parse_packet(hex, str_bits=False):
     length_type_id = data[0]
     if length_type_id == '0':
         length = int(data[1:1 + 15], 2)
-        data = data[16:]
-        while len(data) // 4 > 0 and len(data) > 6:
+        data = data[16: 16 + length]
+        print('Inside packet i=0, L={length}')
+        while len(data) > 6:
             # print(f'Another inside packet', len(data)//4, data)
             that_c, _ = parse_packet(data, str_bits=True)
-            that_c = math.ceil(that_c / 4)
-            data = data[that_c:]
+            # if that_c > 11:
+            #     print('!!! !!!!')
+            # that_c = math.ceil(that_c / 4)
+            data = data[6 + that_c:]
+        if len(data) != 0 and len(data) > 6:
+            print('! Unconsumed', len(data), 'bits')
         return 1 + 15 + length, 'LT-len'
     else:
         sub_pack = int(data[1:1 + 11], 2)
+        print(f' -- Inside packet i=1 with {sub_pack} packets')
         data = data[12:]
         data = data[:sub_pack * 11]
-        return 12 + len(data), 'LT_sub'
+        rlen = 12
+        for i in range(sub_pack):
+            that_c, _ = parse_packet(data, str_bits=True)
+            data = data[6 + that_c:]
+            rlen += 6 + that_c
+        if len(data) != 0:
+            print('@ Unconsumed', len(data), 'bits')
+        return rlen, 'LT_sub'
 
     raise NotImplementedError()
 
 
 def main1(values) -> int:
     # data = values
-    data = ''.join(f'{int(x,16):08b}' for x in values)
+    pprint(values)
+    data = ''.join(f'{int(x,16):04b}' for x in values)
+    print(data)
     while len(data) > 0:
-        print(f'Parsing {data[:5]!r} ... {len(data)} d. left')
+        print(f'Parsing {int(data[:4*2],2):02x} ... {len(data)} d. left')
         bits, v = parse_packet(data, str_bits=True)
         bits += 6  # header
         hexd = math.ceil(bits / 4)
@@ -109,7 +126,7 @@ if __name__ == '__main__':
     PUZZLE_INPUT = j_aoc_common.do_common_main(locals(), day=16)
     with PUZZLE_INPUT as f:
         inp_values = f.read().strip()
-    print(f'{len(inp_values)} hex digits')
+    print(f'{len(inp_values)} hex digits == {4*len(inp_values)} bits')
 
     answ = main1(inp_values)
     print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
