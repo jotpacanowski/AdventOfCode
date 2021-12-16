@@ -10,6 +10,32 @@ from pprint import pprint
 import j_aoc_common
 
 
+def do_gt(x):
+    assert len(x) == 2
+    return 1 if x[0] > x[1] else 0
+
+
+def do_lt(x):
+    assert len(x) == 2
+    return 1 if x[0] < x[1] else 0
+
+
+def do_eq(x):
+    assert len(x) == 2
+    return 1 if x[0] == x[1] else 0
+
+
+OPS = {
+    0: sum,
+    1: lambda x: functools.reduce(operator.mul, x),
+    2: min,
+    3: max,
+    5: do_gt,  # operator.gt,
+    6: do_lt,  # operator.lt,
+    7: do_eq,  # operator.eq
+}
+
+
 def parse_literal_value(data) -> int:
     values = []
     while True:
@@ -70,33 +96,43 @@ def parse_packet(hex, str_bits=False):
         length = int(data[1:1 + 15], 2)
         data = data[16: 16 + length]
         print(f' -- Inside packet i=0, L={length}')
+        values = []
         while len(data) > 6:
             # print(f'Another inside packet', len(data)//4, data)
             print(f'about to parse ({len(data)} b):')  # , data)
-            that_c, _ = parse_packet(data, str_bits=True)
+            that_c, val = parse_packet(data, str_bits=True)
+            values.append(val)
             # if that_c > 11:
             #     print('!!! !!!!')
             # that_c = math.ceil(that_c / 4)
             data = data[that_c:]
         if len(data) != 0 and len(data) > 6:
             print('! Unconsumed', len(data), 'bits')
-        return 6 + 1 + 15 + length, 'LT-len'
+
+        # do func
+        result = OPS[PT](values)
+        return 6 + 1 + 15 + length, result
     else:
         sub_pack = int(data[1:1 + 11], 2)
         print(f' -- Inside packet i=1 with {sub_pack} sub-packets')
         data = data[12:]
         # data = data[:sub_pack * 11]
         rlen = 12
+        values = []
         for i in range(sub_pack):
             print(f'about to parse {i}/{sub_pack}:')  # , data)
-            that_c, _ = parse_packet(data, str_bits=True)
+            that_c, val = parse_packet(data, str_bits=True)
             data = data[that_c:]
             rlen += that_c
+            values.append(val)
         print(f'{i}/{sub_pack} -- ver {PV}')
         if len(data) != 0:
             # rlen += len(data)
             print('@ Unconsumed', len(data), 'bits')
-        return 6 + rlen, 'LT_sub'
+
+        # do func
+        result = OPS[PT](values)
+        return 6 + rlen, result
 
     raise NotImplementedError()
 
@@ -121,19 +157,10 @@ def main1(values) -> int:
     return GLBL_SUM_ALL_PV
 
 
-OPS = {
-    0: sum,
-    1: lambda x: functools.reduce(operator.mul, x),
-    2: min,
-    3: max,
-    5: operator.gt,
-    6: operator.lt,
-    7: operator.eq
-}
-
-
 def main2(values) -> int:
-    return
+    data = ''.join(f'{int(x,16):04b}' for x in values)
+    _, val = parse_packet(data, str_bits=True)
+    return val
 
 
 EXAMPLE_1 = "8A004A801A8002F478"  # 4,1,5,6 -> 16
@@ -164,4 +191,4 @@ if __name__ == '__main__':
 
     answ2 = main2(inp_values)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
-    # Correct answer for my input:
+    # Correct answer for my input: 200476472872
