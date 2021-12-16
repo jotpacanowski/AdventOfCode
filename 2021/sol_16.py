@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # 2021-12-16
 
+import math
 from pprint import pprint
 
 import j_aoc_common
@@ -22,14 +23,22 @@ def parse_literal_value(data) -> int:
 GLBL_SUM_ALL_PV = 0
 
 
-def parse_packet(hex):
+def parse_packet(hex, str_bits=False):
     "Parse a single packet, return (consumed_bits, value)"
     global GLBL_SUM_ALL_PV
 
-    if isinstance(hex, str):
-        hex = bytes.fromhex(hex)
-    bits = ''.join(f'{x:08b}' for x in hex)
-    org_data_len = len(bits)
+    if str_bits:
+        bits = hex
+    else:
+        if isinstance(hex, str):
+            if len(hex) % 2 == 1:
+                hex += '0'
+            hex = bytes.fromhex(hex)
+            bits = ''.join(f'{x:08b}' for x in hex)
+        else:
+            raise NotImplementedError
+
+    # org_data_len = len(bits)
 
     # print(f'Packet: {hex.hex()}')
     PV, PT, data = bits[0:3], bits[3:6], bits[6:]
@@ -37,6 +46,9 @@ def parse_packet(hex):
     PV = int(PV, 2)
     PT = int(PT, 2)
     GLBL_SUM_ALL_PV += PV
+
+    if not data:
+        return 0, float('nan')
 
     if PT == 4:
         return parse_literal_value(data)
@@ -46,18 +58,29 @@ def parse_packet(hex):
     if length_type_id == '0':
         length = int(data[1:1 + 15], 2)
         data = data[16:]
-        return 1 + 15 + length, None
+        while len(data) // 4 > 0:
+            that_c, _ = parse_packet(data, str_bits=True)
+            that_c = math.ceil(that_c / 4)
+            data = data[that_c:]
+        return 1 + 15 + length, 'LT-len'
     else:
         sub_pack = int(data[1:1 + 11], 2)
         data = data[12:]
         data = data[:sub_pack * 11]
-        return 12 + len(data), None
+        return 12 + len(data), 'LT_sub'
 
     raise NotImplementedError()
 
 
 def main1(values) -> int:
-    parse_packet(values)
+    data = values
+    while len(data) > 0:
+        print(f'Parsing {data[:5]!r} ... {len(data)} d. left')
+        bits, v = parse_packet(data)
+        bits += 6  # header
+        hexd = math.ceil(bits / 4)
+        print(f"cosdumed {bits }, {v=}")
+        data = data[hexd:]
     return GLBL_SUM_ALL_PV
 
 
@@ -77,7 +100,7 @@ if __name__ == '__main__':
     PUZZLE_INPUT = j_aoc_common.do_common_main(locals(), day=16)
     with PUZZLE_INPUT as f:
         inp_values = f.read().strip()
-    print(f'{len(inp_values)} lines')
+    print(f'{len(inp_values)} hex digits')
 
     answ = main1(inp_values)
     print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
