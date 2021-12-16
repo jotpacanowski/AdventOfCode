@@ -45,10 +45,11 @@ def parse_packet(hex, str_bits=False):
     # print(f'{PV}, {PT}, {len(data)} b left')
     PV = int(PV, 2)
     PT = int(PT, 2)
-    GLBL_SUM_ALL_PV += PV
 
     if not data:
         return 0, float('nan')
+    print(f' * Packet {PT == 4} w/ ver. {PV}   {len(data)}')
+    GLBL_SUM_ALL_PV += PV
 
     if PT == 4:
         return parse_literal_value(data)
@@ -74,14 +75,17 @@ def parse_packet(hex, str_bits=False):
 
 
 def main1(values) -> int:
-    data = values
+    # data = values
+    data = ''.join(f'{int(x,16):08b}' for x in values)
     while len(data) > 0:
         print(f'Parsing {data[:5]!r} ... {len(data)} d. left')
-        bits, v = parse_packet(data)
+        bits, v = parse_packet(data, str_bits=True)
         bits += 6  # header
         hexd = math.ceil(bits / 4)
-        print(f"cosdumed {bits }, {v=}")
+        print(f"cosdumed {bits} -> {hexd} digits, {v=}")
+        print('current sum', GLBL_SUM_ALL_PV)
         data = data[hexd:]
+        # BITS transmission might encode few 0 at the end - ignore
     return GLBL_SUM_ALL_PV
 
 
@@ -89,9 +93,8 @@ def main2(values) -> int:
     return
 
 
-EXAMPLE_1 = """
-
-"""
+EXAMPLE_1 = "8A004A801A8002F478"  # 4,1,5,6 -> 16
+EXAMPLE_2 = '620080001611562C8802118E34'  # 12
 
 if __name__ == '__main__':
     if False:
@@ -101,6 +104,7 @@ if __name__ == '__main__':
         print('assertions succ2')
         assert parse_packet("EE00D40C823060")[0] == 45  # I=1
         print('assertions succ3')
+        GLBL_SUM_ALL_PV = 0
 
     PUZZLE_INPUT = j_aoc_common.do_common_main(locals(), day=16)
     with PUZZLE_INPUT as f:
@@ -109,7 +113,9 @@ if __name__ == '__main__':
 
     answ = main1(inp_values)
     print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
-    # Correct answer for my input: 2545
+    # Correct answer for my input:
+    # 2545 - too high
+    # 45 - wrong
 
     answ2 = main2(inp_values)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
