@@ -39,6 +39,36 @@ def check_init_vel(iv, tarx, tary):
         ...
     return reached, max_y
 
+# Physics formulas:
+
+
+def calc_pos(v0, t, a=None):
+    if a is None:
+        a = -sgn(v0)  # Task stmt for X axis
+    return 0 + v0*t + a*t*t/2
+
+
+def find_initial_speed_x(target_left: int, target_right: int) -> range:
+    if target_left <= 0 <= target_right:
+        return range(0, 0 + 1)
+    # TODO: What if target is negative? (if it will ever be)
+
+    return range(target_left, target_right+1)
+
+
+def find_initial_sp_y(target_down: int, target_up: int) -> range:
+    # In y target usually will be negative
+    if target_down <= 0 <= target_up:
+        return range(0, 0 + 1)
+
+    # in every case a == -1
+    # Again, it takes the same amount of time to reach v_y == 0
+    # as the initial velocity in y.
+
+    minv = max(target_down, target_down)
+    maxv = max(-target_down, -target_up) + 10  # ???
+    return range(minv, maxv+1)
+
 
 def main1(xrange, yrange) -> int:
     ...
