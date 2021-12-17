@@ -43,15 +43,18 @@ def check_init_vel(iv, tarx, tary):
         # Check if vel[] points towards target area or not
         if pos[1] < min(*tary):
             break
+        if pos[0] < min(*tarx) and vel[0] <= 0:
+            break
+
     return reached, max_y
 
 
 def find_initial_speed_x(target_left: int, target_right: int) -> range:
     if target_left <= 0 <= target_right:
         return range(0, 0 + 1)
-    # TODO: What if target is negative? (if it will ever be)
+    # What if target is negative? (if it will ever be)
 
-    return range(1, target_right+1+10)
+    return range(1, target_right+2)
 
 
 def find_initial_sp_y(target_down: int, target_up: int) -> range:
@@ -64,7 +67,8 @@ def find_initial_sp_y(target_down: int, target_up: int) -> range:
     # as the initial velocity in y.
 
     minv = max(target_down, target_down)
-    maxv = max(-target_down, -target_up) + 10  # ???
+    maxv = 150 + 10  # IDK ???
+    return range(-100, 200)
     return range(minv-10, maxv+1+10)
 
 
@@ -80,7 +84,6 @@ def main_both(xrange, yrange):
     for vx, vy in itertools.product(solsp_vx, solsp_vy):
         reached, max_y = check_init_vel([vx, vy], xrange, yrange)
         if reached:
-            # print(f'Found sol: {vx,vy} {max_y=}')
             highest = max(highest, max_y)
             count += 1
     return highest, count
@@ -107,9 +110,9 @@ if __name__ == '__main__':
     t_start = dt.now()
     answ1, answ2 = main_both(inp_x, inp_y)
     print(f'\x1b[32;1mAnswer: {answ1} \x1b[0m')
-    # Correct answer for my input:
+    # Correct answer for my input: 4186
     print(f'\x1b[32;1m Answer2: {answ2} \x1b[0m')
-    # Correct answer for my input:
-    # 1491 - too low :(
+    # Correct answer for my input: 2709
+    # 1491 was too low
     took = dt.now() - t_start
     print(f'Computing took {took} seconds')
