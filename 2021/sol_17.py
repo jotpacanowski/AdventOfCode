@@ -23,12 +23,7 @@ def check_init_vel(iv, tarx, tary):
         pos[0] += vel[0]
         pos[1] += vel[1]
         vel[1] -= 1  # Gravity
-        # if vel[0] > 0:
-        #     vel[0] -= 1
-        # elif vel[0] < 0:
-        #     vel[0] += 1
         vel[0] -= sgn(vel[0])
-        # ...
 
         max_y = max(max_y, pos[1])
 
