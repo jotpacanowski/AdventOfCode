@@ -6,6 +6,39 @@ from pprint import pprint
 import j_aoc_common
 
 
+def sgn(x):
+    "Signum function"
+    return 1 if x > 0 else -1 if x < 0 else 0
+
+
+def check_init_vel(iv, tarx, tary):
+    pos = [0, 0]
+    vel = [iv[0], iv[1]]
+    steps = 0
+    reached = False
+    max_y = 0
+    while not reached and steps < 1000:
+        steps += 1
+        # Algorithm to simulate the probe
+        pos[0] += vel[0]
+        pos[1] += vel[1]
+        vel[1] -= 1  # Gravity
+        # if vel[0] > 0:
+        #     vel[0] -= 1
+        # elif vel[0] < 0:
+        #     vel[0] += 1
+        vel[0] -= sgn(vel[0])
+        # ...
+
+        max_y = max(max_y, pos[1])
+
+        if tarx[0] <= pos[0] <= tarx[1] and tary[0] <= pos[1] <= tary[1]:
+            reached = True
+
+        # TODO: Check if it is outside using some vector math
+    return reached, max_y
+
+
 def main1(xrange, yrange) -> int:
     ...
 
