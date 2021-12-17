@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # 2021-12-17
 
+import itertools
 from pprint import pprint
 
 import j_aoc_common
@@ -53,7 +54,7 @@ def find_initial_speed_x(target_left: int, target_right: int) -> range:
         return range(0, 0 + 1)
     # TODO: What if target is negative? (if it will ever be)
 
-    return range(target_left, target_right+1)
+    return range(1, target_right+1+10)
 
 
 def find_initial_sp_y(target_down: int, target_up: int) -> range:
@@ -67,11 +68,23 @@ def find_initial_sp_y(target_down: int, target_up: int) -> range:
 
     minv = max(target_down, target_down)
     maxv = max(-target_down, -target_up) + 10  # ???
-    return range(minv, maxv+1)
+    return range(minv-10, maxv+1+10)
 
 
 def main1(xrange, yrange) -> int:
-    ...
+    solsp_vx = find_initial_speed_x(*xrange)
+    solsp_vy = find_initial_sp_y(*yrange[::-1])
+    print(f'Solution space: {len(solsp_vx) * len(solsp_vy)}')
+    print(f'Vel. range for x: {solsp_vx}')
+    print(f'Vel. range for y: {solsp_vy}')
+
+    highest = 0
+    for vx, vy in itertools.product(solsp_vx, solsp_vy):
+        reached, max_y = check_init_vel([vx, vy], xrange, yrange)
+        if reached:
+            # print(f'Found sol: {vx,vy} {max_y=}')
+            highest = max(highest, max_y)
+    return highest
 
 
 def main2(xrange, yrange) -> int:
