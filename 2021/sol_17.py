@@ -14,9 +14,11 @@ def sgn(x):
 def check_init_vel(iv, tarx, tary):
     pos = [0, 0]
     vel = [iv[0], iv[1]]
+
     steps = 0
     reached = False
     max_y = 0
+
     while not reached and steps < 1000:
         steps += 1
         # Algorithm to simulate the probe
@@ -25,12 +27,16 @@ def check_init_vel(iv, tarx, tary):
         vel[1] -= 1  # Gravity
         vel[0] -= sgn(vel[0])
 
+        # Stats
         max_y = max(max_y, pos[1])
 
         if tarx[0] <= pos[0] <= tarx[1] and tary[0] <= pos[1] <= tary[1]:
+            # pos[] is inside the target range
             reached = True
+            break
 
-        # TODO: Check if it is outside using some vector math
+        # TODO: Check if vel[] points towards target area or not
+        ...
     return reached, max_y
 
 
