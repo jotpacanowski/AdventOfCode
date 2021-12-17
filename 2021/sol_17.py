@@ -88,7 +88,15 @@ def main1(xrange, yrange) -> int:
 
 
 def main2(xrange, yrange) -> int:
-    ...
+    solsp_vx = find_initial_speed_x(*xrange)
+    solsp_vy = find_initial_sp_y(*yrange[::-1])
+
+    count = 0
+    for vx, vy in itertools.product(solsp_vx, solsp_vy):
+        reached, max_y = check_init_vel([vx, vy], xrange, yrange)
+        if reached:
+            count += 1
+    return count
 
 
 EXAMPLE_1 = "target area: x=20..30, y=-10..-5"
@@ -116,3 +124,4 @@ if __name__ == '__main__':
     answ2 = main2(inp_x, inp_y)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
     # Correct answer for my input:
+    # 1491 - too low :(
