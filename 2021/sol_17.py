@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # 2021-12-17
 
+from datetime import datetime as dt
 import itertools
 from pprint import pprint
 
@@ -12,15 +13,18 @@ def sgn(x):
     return 1 if x > 0 else -1 if x < 0 else 0
 
 
+# This function`s run time is crucial
 def check_init_vel(iv, tarx, tary):
     pos = [0, 0]
     vel = [iv[0], iv[1]]
+    assert tarx[0] > 1 and tarx[1] > 1
+    assert tary[0] < 0 and tary[1] < 0
 
     steps = 0
     reached = False
     max_y = 0
 
-    while not reached and steps < 1000:
+    while not reached and steps < 100_000:
         steps += 1
         # Algorithm to simulate the probe
         pos[0] += vel[0]
@@ -36,17 +40,10 @@ def check_init_vel(iv, tarx, tary):
             reached = True
             break
 
-        # TODO: Check if vel[] points towards target area or not
-        ...
+        # Check if vel[] points towards target area or not
+        if pos[1] < min(*tary):
+            break
     return reached, max_y
-
-# Physics formulas:
-
-
-def calc_pos(v0, t, a=None):
-    if a is None:
-        a = -sgn(v0)  # Task stmt for X axis
-    return 0 + v0*t + a*t*t/2
 
 
 def find_initial_speed_x(target_left: int, target_right: int) -> range:
@@ -71,7 +68,7 @@ def find_initial_sp_y(target_down: int, target_up: int) -> range:
     return range(minv-10, maxv+1+10)
 
 
-def main1(xrange, yrange) -> int:
+def main_both(xrange, yrange):
     solsp_vx = find_initial_speed_x(*xrange)
     solsp_vy = find_initial_sp_y(*yrange[::-1])
     print(f'Solution space: {len(solsp_vx) * len(solsp_vy)}')
@@ -79,24 +76,14 @@ def main1(xrange, yrange) -> int:
     print(f'Vel. range for y: {solsp_vy}')
 
     highest = 0
+    count = 0
     for vx, vy in itertools.product(solsp_vx, solsp_vy):
         reached, max_y = check_init_vel([vx, vy], xrange, yrange)
         if reached:
             # print(f'Found sol: {vx,vy} {max_y=}')
             highest = max(highest, max_y)
-    return highest
-
-
-def main2(xrange, yrange) -> int:
-    solsp_vx = find_initial_speed_x(*xrange)
-    solsp_vy = find_initial_sp_y(*yrange[::-1])
-
-    count = 0
-    for vx, vy in itertools.product(solsp_vx, solsp_vy):
-        reached, max_y = check_init_vel([vx, vy], xrange, yrange)
-        if reached:
             count += 1
-    return count
+    return highest, count
 
 
 EXAMPLE_1 = "target area: x=20..30, y=-10..-5"
@@ -117,11 +104,12 @@ if __name__ == '__main__':
     assert inp_x[0] <= inp_x[1]
     assert inp_y[0] <= inp_y[1]
 
-    answ = main1(inp_x, inp_y)
-    print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
+    t_start = dt.now()
+    answ1, answ2 = main_both(inp_x, inp_y)
+    print(f'\x1b[32;1mAnswer: {answ1} \x1b[0m')
     # Correct answer for my input:
-
-    answ2 = main2(inp_x, inp_y)
-    print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
+    print(f'\x1b[32;1m Answer2: {answ2} \x1b[0m')
     # Correct answer for my input:
     # 1491 - too low :(
+    took = dt.now() - t_start
+    print(f'Computing took {took} seconds')
