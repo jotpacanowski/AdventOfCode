@@ -15,20 +15,15 @@ def move_pawn(pos: int, steps: int) -> int:
 def add_modulo_p1(a: int, b: int, /, mod: int) -> int:
     """Perform addition modulo `mod` of $a+b-1$ and add 1 to the result."""
     return ((a + b - 1) % mod) + 1
-    # a -= 1
-    # a += b
-    # while a > mod:
-    #     a -= mod
-    # return a + 1
 
 
-def main1(inp_values) -> int:
+def main1(inp_values, /, stopping_points=1000, *, verbose=False) -> int:
     p1pos, p2pos = inp_values  # Positions on the board 1..10
     p1sc = p2sc = 0
     dice_id = 1
     rolled_times = 0
 
-    while p1sc < 1000 and p2sc < 1000:
+    while p1sc < stopping_points and p2sc < stopping_points:
         roll = 3 * dice_id + 3
         # print(f'P1 rolls {dice_id},{dice_id+1},{dice_id+2} == {roll} ', end='')
         dice_id = add_modulo_p1(dice_id, 3, 100)
@@ -38,7 +33,7 @@ def main1(inp_values) -> int:
         p1sc += p1pos
         # print(f'and goes to', p1pos, 'w/', p1sc, 'points')
 
-        if p1sc >= 1000:
+        if p1sc >= stopping_points:
             break
 
         # Same thing
@@ -51,19 +46,56 @@ def main1(inp_values) -> int:
         p2sc += p2pos
         # print(f'and goes to', p2pos, 'w/', p2sc, 'points')
 
-    print(f' * Dice has been rolled {rolled_times} times.')
-    if p1sc >= 1000:
-        print(f'-- Player 1 won with {p1sc} points  > {p2sc}')
+    if verbose:
+        print(f' * Dice has been rolled {rolled_times} times.')
+    if p1sc >= stopping_points:
+        if verbose:
+            print(f'-- Player 1 won with {p1sc} points  > {p2sc}')
         return p2sc * rolled_times
-    elif p2sc >= 1000:
-        print(f'-- Player 2 won with {p2sc} points  > {p1sc}')
+    elif p2sc >= stopping_points:
+        if verbose:
+            print(f'-- Player 2 won with {p2sc} points  > {p1sc}')
         return p1sc * rolled_times
     else:
         return NotImplemented
 
 
+# def enum_dice_roll_possibilities():
+    # Computed this way:
+    # dd = dict()
+    # for i,j,k in itertools.product(range(1,3+1), repeat=3):
+    #     dd[i+j+k] = dd.get(i+j+k, 0) + 1
+    # return dd
+
+DIRAC_DICE = {3: 1, 4: 3, 5: 6, 6: 7, 7: 6, 8: 3, 9: 1}.items()
+
+
+# RECURSIVE_CALLS = 0
+
+def rek(pl_pos, other_pos, pl_sc=0, other_sc=0, *, lvl=0):
+    # global RECURSIVE_CALLS
+    # RECURSIVE_CALLS += 1
+    # if lvl < 2:
+    #     print(f'{" "*lvl}* {RECURSIVE_CALLS} calls')
+    this_wins, other_wins = 0, 0
+    for rollsum, universes in DIRAC_DICE:
+        new_pos = move_pawn(pl_pos, rollsum)  # add_modulo_p1(pl_pos, rollsum, 10)
+        new_score = pl_sc + new_pos
+        if new_score >= 21:
+            this_wins += universes
+            continue
+
+        # Now other player takes turn
+        rec_result = rek(other_pos, new_pos, other_sc, new_score, lvl=lvl+1)
+        other_wins += rec_result[0] * universes
+        this_wins += rec_result[1] * universes
+    return this_wins, other_wins
+
+
 def main2(values) -> int:
-    return
+    result = rek(values[0], values[1])
+    print('Recursion result: ', result)
+    return max(result)
 
 
 EXAMPLE_1 = """Player 1 starting position: 4
@@ -83,10 +115,10 @@ if __name__ == '__main__':
         assert len(inp_values) == 2
     print(f'Positions: {inp_values[0]} and {inp_values[1]}')
 
-    answ = main1(inp_values)
+    answ = main1(inp_values, verbose=True)
     print(f'\x1b[32;1mAnswer: {answ} \x1b[0m')
     # Correct answer for my input: 916083
 
     answ2 = main2(inp_values)
     print(f'Part 2,\x1b[32;1m Answer: {answ2} \x1b[0m')
-    # Correct answer for my input:
+    # Correct answer for my input: 49982165861983
