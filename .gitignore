@@ -1,4 +1,7 @@
-.vscode/**
+.vscode/
 __pycache__/
 *.jpg
 *.png
+
+target/
+Cargo.lock
