@@ -15,3 +15,7 @@ authors = ["Jędrzej Pacanowski"]
 name = "day01"
 path = "src/d1.rs"
 #test = true
+
+[[bin]]
+name = "day02"
+path = "src/d2.rs"
