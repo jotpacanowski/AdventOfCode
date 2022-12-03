@@ -20,11 +20,11 @@ fn parse_input(lines: Vec<&str>) -> Vec<Vec<i32>> {
     r
 }
 
-fn solve1(elves: &Vec<Vec<i32>>) -> i32 {
+fn solve1(elves: &[Vec<i32>]) -> i32 {
     elves.iter().map(|x| x.iter().sum()).max().unwrap()
 }
 
-fn solve1_simple(elves: &Vec<Vec<i32>>) -> i32 {
+fn solve1_simple(elves: &[Vec<i32>]) -> i32 {
     let mut max = 0;
     for it in elves {
         let s = it.iter().sum();
@@ -35,7 +35,7 @@ fn solve1_simple(elves: &Vec<Vec<i32>>) -> i32 {
     max
 }
 
-fn solve2(elves: &Vec<Vec<i32>>) -> i32 {
+fn solve2(elves: &[Vec<i32>]) -> i32 {
     let mut sums: Vec<i32> = elves.iter().map(|x| x.iter().sum()).collect();
 
     // sums.sort();

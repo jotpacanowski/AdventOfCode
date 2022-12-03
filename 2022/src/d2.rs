@@ -18,7 +18,7 @@ fn parse_input(lines: Vec<&str>) -> Vec<(u8, u8)> {
 
         let abc = l[0].chars().next().expect("wtf");
         let xyz = l[1].chars().next().expect("wtf2");
-        r.push((abc as u8 - 'A' as u8, xyz as u8 - 'X' as u8));
+        r.push((abc as u8 - b'A', xyz as u8 - b'X'));
     }
 
     r
@@ -37,10 +37,10 @@ fn solve1(inp: &Vec<(u8, u8)>) -> u32 {
         let m = *m as u32;
         if i == m {
             total += 3 + (m + 1);
-        } else if let Some(_) = winning.get(&(i as u8, m as u8)) {
+        } else if winning.get(&(i as u8, m as u8)).is_some() {
             total += 6 + (m + 1);
         } else {
-            total += 0 + (m + 1);
+            total += m + 1;
         }
     }
 

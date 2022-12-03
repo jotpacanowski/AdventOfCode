@@ -16,11 +16,13 @@ fn main() {
 }
 
 fn priority(letter: &char) -> u32 {
-    let letter = *letter;
-    if 'a' <= letter && letter <= 'z' {
-        1 + letter as u32 - 'a' as u32
-    } else if 'A' <= letter && letter <= 'Z' {
-        27 + letter as u32 - 'A' as u32
+    // Hint given by clippy:
+    // https://rust-lang.github.io/rust-clippy/master/index.html#manual_range_contains
+    // if  'a' <= letter && letter <= 'z' {
+    if ('a'..='z').contains(letter) {
+        1 + *letter as u32 - 'a' as u32
+    } else if ('A'..='Z').contains(letter) {
+        27 + *letter as u32 - 'A' as u32
     } else {
         panic!("bad letter")
     }
