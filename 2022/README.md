@@ -11,3 +11,11 @@ $ cargo run --bin day01
 ```
 
 Both programs should give the same results.
+
+## vizualizations
+
+During day 12 ("Hill Climbing Algorithm"),
+where pretty-printing was _not_ helpful enough,
+I made a plot of the solutions:
+
+![Day 12 solutions on matplotlib graphs](debug/viz-2022-12.png)
