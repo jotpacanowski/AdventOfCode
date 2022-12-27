@@ -98,6 +98,8 @@ def next_pos_on_map(board, current, dir):
         except IndexError:
             ...
         valid = False
+    if board[lastok[0], lastok[1]] == 2:
+        return current, dir
     return (lastok[0], lastok[1]), dir
 
 
@@ -200,7 +202,7 @@ def solve(board: np.ndarray, moves: list[str | int], next_pos_func):
                     print('!!!', (r, c), dir)
                     print('to:', nextmove[0], nextmove[1])
                 (r, c), dir = nextmove
-                # assert board[r, c] != 0
+                assert board[r, c] != 0
     return r, c, dir
 
 
@@ -228,12 +230,6 @@ if __name__ == '__main__':
                     brd[row, col] = 2
             except IndexError:
                 continue
-
-    # pprint(brd)
-    # import matplotlib.pyplot as plt
-    # plt.imshow(brd)
-    # plt.savefig('dbg22.png')
-    # plt.show()
 
     print('shape', brd.shape)
     r, c, d = solve(brd, moves, next_pos_on_map)
